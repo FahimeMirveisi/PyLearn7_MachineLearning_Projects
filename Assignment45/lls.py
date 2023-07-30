@@ -1,7 +1,9 @@
 import numpy as np
 from numpy.linalg import inv
 
+
 class LinearLeastSquare:
+
     def __init__(self):
         # self.w = None
         pass
