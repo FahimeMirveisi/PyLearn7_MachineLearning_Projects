@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+import matplotlib; matplotlib.use("TkAgg")
 import time
 from sklearn.model_selection import train_test_split
 
@@ -31,7 +32,7 @@ w = np.random.rand(1, 1)
 b = np.random.rand(1, 1)
 # print(w)
 learning_rate_w = 0.0001
-learning_rate_b = 0.001
+learning_rate_b = 0.01
 
 losses = []
 epochs = 20
