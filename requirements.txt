@@ -3,3 +3,5 @@ numpy
 matplotlib
 opencv
 pandas
+sklearn
+seaborn

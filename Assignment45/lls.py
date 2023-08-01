@@ -8,6 +8,8 @@ class LinearLeastSquare:
         # self.w = None
         pass
 
+
+
     def fit(self, X_train, Y_train):
 
         # train
