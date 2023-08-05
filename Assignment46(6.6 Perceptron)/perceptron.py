@@ -3,56 +3,77 @@ import numpy as np
 
 class Perceptron:
 
-    def __init__(self, w_lr, b_lr, epochs):
+    def __init__(self, w_lr=0.001, b_lr=0.01, epochs=10):
 
         # input_size = None
-        self.w = None
-        self.b = None
+
+        self.w = np.random.rand(1, 1)
+        self.b = np.random.rand(1, 1)
         self.w_lr = w_lr
         self.b_lr = b_lr
         self.epochs = epochs
 
+    def calculate_error(self, y_real, y_hat):
+        # y_real = y_test or y_train
+        error = y_real - y_hat
+        return error
+
+    def mse_loss(self, y, y_pred):
+
+        error = self.calculate_error(self.y, self.y_pred)
+        loss = np.mean(error ** 2)
+
+        return loss
+
+    def SGD_optimizer(self,x, y):
+
+        self.y_pred = self.x * self.w + self.b
+        error = self.calculate_error(self.y, self.y_pred)
+
+        loss = self.mse_loss(self.y, self.y_pred)
+
+        self.w = self.w + (error * self.x * self.w_lr)
+        self.b = self.b + (error * self.b_lr)
+
+        return self.w, self.b, self.y_pred
+
+
+
     def fit(self, X_train, Y_train):
 
-        # Initializing weights and bias
-        self.w = np.random.rand(1, 1)
-        self.b = np.random.rand(1, 1)
-
+        X_train_losses = []
         # Iterating until the number of epochs
         for epoch in range(self.epochs):
-            #for i in range(X_train.shape[0]):
-                #x = X_train[i]
-                #y = Y_train[i]
+            for i in range(X_train.shape[0]):
+                self.x = X_train[i]
+                self.y = Y_train[i]
 
-            y_pred = X_train @ self.w + self.b
 
-                #y_pred = x * self.w + self.b
+                self.w, self.b, self.y_pred = self.SGD_optimizer(self.x, self.y)
 
-            error = Y_train - y_pred
+                X_train_losses = np.append(self.y, self.y_pred)
 
-            self.w = self.w + (error * X_train * self.w_lr)
-            self.b = self.b + (error * self.b_lr)
-        return self.w, self.b
+
+        return X_train_losses
 
 
     def predict(self, X_test):
 
-        Y_pred = (X_test @ self.w) + self.b
+        Y_pred = (X_test * self.w) + self.b
+        print("Y_pred shape in predict:", Y_pred.shape)
+        print("Y_pred in predict:", Y_pred)
 
         return Y_pred
 
-    def evaluate(self, X_test, Y_test, metric):
+    def evaluate(self, X_test, Y_test):
 
-        Y_pred = self.predict(X_test)
-        losses = []
+        self.Y_pred = self.predict(X_test)
+        #X_test_losses = []
+        #error = self.calculate_error(Y_test, Y_pred)
+        X_test_losses = self.mse_loss(Y_test, self.Y_pred)
+        #X_test_losses.append(loss)
 
-        error = Y_test - Y_pred
+        return X_test_losses
 
-        if metric == "mae":
-            loss = np.mean(np.abs(error))
-            #losses.append(loss)
-        elif metric == "mse":
-            loss = np.mean((error)**2)
-            #losses.append(loss)
 
-        return loss
+
