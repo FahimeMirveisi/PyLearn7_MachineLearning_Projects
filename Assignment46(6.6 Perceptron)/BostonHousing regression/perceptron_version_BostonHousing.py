@@ -7,9 +7,9 @@ class Perceptron:
 
         self.input_size = input_size
         self.w = np.random.rand(1, 1)
-        print("init w:",self.w)
+        print("init w:", self.w)
         self.b = np.random.rand(1, 1)
-        print("init b:",self.b)
+        print("init b:", self.b)
         self.w_lr = w_lr
         self.b_lr = b_lr
         self.epochs = epochs
@@ -23,9 +23,9 @@ class Perceptron:
         self.ax1.clear()
         self.ax1.scatter(X_train, Y_train, color="blue")
         self.ax1.plot(X_train, X_train * self.w + self.b, color="red")
-        self.ax1.set_xlabel('Length of abalon')
-        self.ax1.set_ylabel('Height of abalon')
-        self.ax1.set_title('Length and Height of abalone')
+        self.ax1.set_xlabel('Years of experience')
+        self.ax1.set_ylabel('Salary (Million Toman)')
+        self.ax1.set_title('Salary and Years of experience')
 
         self.ax2.clear()
         self.ax2.plot(self.X_train_losses, color="cyan")
@@ -64,9 +64,9 @@ class Perceptron:
         for epoch in range(self.epochs):
             for i in range(X_train.shape[0]):
                 self.x = X_train[i]
-                #print(self.x)
+                #print("self.x: ", self.x)
                 self.y = Y_train[i]
-                #print(self.y)
+                #print("self.y: ", self.y)
 
                 # vy_pred = x @ self.w + self.b
                 self.y_pred = self.x * self.w + self.b
@@ -77,6 +77,8 @@ class Perceptron:
                 self.plott(X_train, Y_train)
 
             self.X_train_losses_epoch.append(loss)
+            print("ww",self.w)
+            print("bb", self.b)
 
         return self.X_train_losses, self.X_train_losses_epoch , self.w, self.b
 
@@ -92,9 +94,7 @@ class Perceptron:
     def evaluate(self, X_test, Y_test):
 
         Y_pred = self.predict(X_test)
-        #error = self.calculate_error(Y_test, Y_pred)
         X_test_losses = self.mse_loss(Y_test, Y_pred)
-        #X_test_losses.append(loss)
 
         return X_test_losses
 

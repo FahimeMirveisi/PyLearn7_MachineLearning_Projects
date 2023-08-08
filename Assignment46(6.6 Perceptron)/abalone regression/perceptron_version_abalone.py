@@ -72,13 +72,13 @@ class Perceptron:
                 self.y_pred = self.x * self.w + self.b
                 loss = self.mse_loss(self.y, self.y_pred)
                 self.X_train_losses.append(loss)
-                self.SGD_update(self.error)
+                final_w, final_b = self.SGD_update(self.error)
                 
-                self.plott(X_train, Y_train)
+                #self.plott(X_train, Y_train)
 
             self.X_train_losses_epoch.append(loss)
 
-        return self.X_train_losses, self.X_train_losses_epoch , self.w, self.b
+        return self.X_train_losses, self.X_train_losses_epoch ,final_w, final_b
 
 
     def predict(self, X_train):

@@ -33,11 +33,7 @@ plt.xlabel('Years of experience')
 plt.ylabel('Salary (Million Toman)')
 plt.title('Experience and Salary')
 
-
-
 ### Split data to train and test datasets
-
-
 
 X_train, X_test, Y_train, Y_test = train_test_split(X, Y, shuffle=True, test_size=0.2)
 
@@ -51,25 +47,20 @@ print(X_test.shape)
 print(Y_train.shape)
 print(Y_test.shape)
 
-
-
 ### Implement the perceptron algorithm as a class
 ### Fit your model on the employee's salary dataset
-
 
 perceptron = Perceptron(1, 0.001, 0.01, 10)
 
 X_train_losses, X_train_losses_epoch = perceptron.fit_and_losses(X_train, Y_train)
 
 X_test_losses = perceptron.evaluate(X_test, Y_test)
-print("X_test_losses: ",X_test_losses)
+#print("X_test_losses: ",X_test_losses)
 
 Y_pred_X_train = perceptron.predict(X_train)
-print("Y_pred_X_train: ",Y_pred_X_train)
+#print("Y_pred_X_train: ",Y_pred_X_train)
 
 perceptron.plott(X_train, Y_train)
-
-
 
 ### Plot data graph and loss graph as 2 subplots in 1 window
 
