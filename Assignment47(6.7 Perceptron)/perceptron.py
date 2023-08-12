@@ -11,7 +11,7 @@ class Perceptron:
         if function == 'sigmoid':
             return 1 / (1 + np.exp(-x))
         elif function == 'relu':
-            return np.max(0, x)
+            return np.maximum(0, x)
         elif function == 'tanh':
             return np.tanh(x)
         elif function == 'linear':
@@ -19,7 +19,12 @@ class Perceptron:
         else:
             raise Exception("Unknown activation function")
 
-    def fit(self, X_train, Y_train, epochs):
+    def fit(self, X_train, Y_train, X_test, Y_test, epochs):
+        each_epoch_losses_train = []
+        each_epoch_accuracy_train = []
+        each_epoch_losses_test = []
+        each_epoch_accuracy_test = []
+
         for epoch in tqdm(range(epochs)):
             for x, y in zip(X_train, Y_train):
                 # forwarding
@@ -32,6 +37,21 @@ class Perceptron:
                 # updating
                 self.weights += error * x * self.learning_rate
                 self.bias += error * self.learning_rate
+
+                # loss
+                loss = self.X_train_loss_cal(y, y_pred, error)
+            each_epoch_losses_train.append(self.calculate_loss(X_train, Y_train, 'mse'))
+            each_epoch_accuracy_train.append(self.calculate_accuracy(X_train, Y_train))
+            each_epoch_losses_test.append(self.calculate_loss(X_test, Y_test, 'mse'))
+            each_epoch_accuracy_test.append(self.calculate_accuracy(X_test, Y_test))
+
+        return np.array(each_epoch_losses_train), np.array(each_epoch_accuracy_train),\
+               np.array(each_epoch_losses_test), np.array(each_epoch_accuracy_test)
+
+    def X_train_loss_cal(self,y, y_pred, error):
+        loss = np.mean(error ** 2)
+        return loss
+
 
     def calculate_loss(self, X_test, Y_test, metric):
         Y_pred = self.predict(X_test)
