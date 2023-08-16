@@ -2,19 +2,20 @@ import numpy as np
 from tqdm import tqdm
 
 class Perceptron:
-    def __init__(self, learning_rate, input_length):
+    def __init__(self, learning_rate, input_length, function):
         self.learning_rate = learning_rate
+        self.function = function
         self.weights = np.random.rand(input_length)
         self.bias = np.random.rand(1)
 
-    def activation(self, x, function):
-        if function == 'sigmoid':
+    def activation(self, x):
+        if self.function == 'sigmoid':
             return 1 / (1 + np.exp(-x))
-        elif function == 'relu':
+        elif self.function == 'relu':
             return np.maximum(0, x)
-        elif function == 'tanh':
+        elif self.function == 'tanh':
             return np.tanh(x)
-        elif function == 'linear':
+        elif self.function == 'linear':
             return x
         else:
             raise Exception("Unknown activation function")
@@ -29,7 +30,7 @@ class Perceptron:
             for x, y in zip(X_train, Y_train):
                 # forwarding
                 y_pred = x @ self.weights + self.bias
-                y_pred = self.activation(y_pred, 'sigmoid')
+                y_pred = self.activation(y_pred)
 
                 # back propagation
                 error = y - y_pred
@@ -39,18 +40,16 @@ class Perceptron:
                 self.bias += error * self.learning_rate
 
                 # loss
-                loss = self.X_train_loss_cal(y, y_pred, error)
-            each_epoch_losses_train.append(self.calculate_loss(X_train, Y_train, 'mse'))
-            each_epoch_accuracy_train.append(self.calculate_accuracy(X_train, Y_train))
-            each_epoch_losses_test.append(self.calculate_loss(X_test, Y_test, 'mse'))
-            each_epoch_accuracy_test.append(self.calculate_accuracy(X_test, Y_test))
+                train_loss, train_acc = self.evaluate(X_train, Y_train)
+                test_loss, test_acc = self.evaluate(X_test, Y_test)
+            each_epoch_losses_train.append(train_loss)
+            each_epoch_accuracy_train.append(train_acc)
+            each_epoch_losses_test.append(test_loss)
+            each_epoch_accuracy_test.append(test_acc)
 
         return np.array(each_epoch_losses_train), np.array(each_epoch_accuracy_train),\
                np.array(each_epoch_losses_test), np.array(each_epoch_accuracy_test)
 
-    def X_train_loss_cal(self,y, y_pred, error):
-        loss = np.mean(error ** 2)
-        return loss
 
 
     def calculate_loss(self, X_test, Y_test, metric):
@@ -64,15 +63,16 @@ class Perceptron:
 
     def calculate_accuracy(self, X_test, Y_test):
         Y_pred = self.predict(X_test)
-        Y_pred = np.where(Y_pred > 0.5, 1, 0)
-        accuracy = np.sum(Y_pred == Y_test) / len(Y_test)
+        RSS = np.sum((Y_test - Y_pred)**2)
+        TSS = np.sum((Y_test - np.mean(Y_test))**2)
+        accuracy = 1 - RSS/TSS
         return accuracy
 
     def predict(self, X_test):
         Y_pred = []
         for x_test in X_test:
             y_pred = x_test @ self.weights + self.bias
-            y_pred = self.activation(y_pred, 'sigmoid')
+            y_pred = self.activation(y_pred)
             Y_pred.append(y_pred)
         return np.array(Y_pred)
 
