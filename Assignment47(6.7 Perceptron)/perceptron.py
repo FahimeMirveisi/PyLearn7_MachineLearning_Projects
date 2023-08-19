@@ -39,9 +39,10 @@ class Perceptron:
                 self.weights += error * x * self.learning_rate
                 self.bias += error * self.learning_rate
 
-                # loss
-                train_loss, train_acc = self.evaluate(X_train, Y_train)
-                test_loss, test_acc = self.evaluate(X_test, Y_test)
+                # calculate loss and accuracy in each epoch
+            train_loss, train_acc = self.evaluate(X_train, Y_train)
+            test_loss, test_acc = self.evaluate(X_test, Y_test)
+
             each_epoch_losses_train.append(train_loss)
             each_epoch_accuracy_train.append(train_acc)
             each_epoch_losses_test.append(test_loss)
@@ -49,8 +50,8 @@ class Perceptron:
 
         return np.array(each_epoch_losses_train), np.array(each_epoch_accuracy_train),\
                np.array(each_epoch_losses_test), np.array(each_epoch_accuracy_test)
-
-
+#        return each_epoch_losses_train, each_epoch_accuracy_train,\
+#               each_epoch_losses_test, each_epoch_accuracy_test
 
     def calculate_loss(self, X_test, Y_test, metric):
         Y_pred = self.predict(X_test)
@@ -61,11 +62,17 @@ class Perceptron:
         else:
             raise Exception('Unknown metric')
 
+#    def calculate_accuracy(self, X_test, Y_test):
+#        Y_pred = self.predict(X_test)
+#        RSS = np.sum((Y_test - Y_pred)**2)
+#        TSS = np.sum((Y_test - np.mean(Y_test))**2)
+#        accuracy = 1 - RSS/TSS
+#        return accuracy
+
     def calculate_accuracy(self, X_test, Y_test):
         Y_pred = self.predict(X_test)
-        RSS = np.sum((Y_test - Y_pred)**2)
-        TSS = np.sum((Y_test - np.mean(Y_test))**2)
-        accuracy = 1 - RSS/TSS
+        Y_pred = np.where(Y_pred > 0.5, 1, 0)
+        accuracy = np.mean(Y_pred == Y_test)
         return accuracy
 
     def predict(self, X_test):
