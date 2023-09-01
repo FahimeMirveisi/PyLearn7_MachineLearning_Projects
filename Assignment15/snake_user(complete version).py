@@ -2,6 +2,7 @@ import random
 import arcade
 
 
+# Class Apple
 class Apple(arcade.Sprite):
     def __init__(self, game):
         super().__init__("game images/apple.png")
@@ -13,6 +14,7 @@ class Apple(arcade.Sprite):
         self.change_y = 0
 
 
+# Class Pear
 class Pear(arcade.Sprite):
     def __init__(self, game):
         super().__init__("game images/pear.png")
@@ -24,6 +26,7 @@ class Pear(arcade.Sprite):
         self.change_y = 0
 
 
+# Class Poop
 class Poop(arcade.Sprite):
     def __init__(self, game):
         super().__init__("game images/poop_glasses.png")
@@ -35,6 +38,7 @@ class Poop(arcade.Sprite):
         self.change_y = 0
 
 
+# Class Snake
 class Snake(arcade.Sprite):
     def __init__(self, game):
         super().__init__()
@@ -88,13 +92,14 @@ class Snake(arcade.Sprite):
         print("Score:", self.score)
 
 
+# Class Game
 class Game(arcade.Window):
     def __init__(self):
         super().__init__(width=500, height=500, title="Super Snake V1")
         arcade.set_background_color(arcade.color.KHAKI)
         self.game_background = arcade.load_texture("game images/game_background.png")
         self.game_over_background = arcade.load_texture("game images/game_over_background1.png")
-        self.game_status = "is playing"
+        self.game_over = False
         self.food = "apple"
         self.apple = Apple(self)
         self.pear = Pear(self)
@@ -103,7 +108,7 @@ class Game(arcade.Window):
 
     def on_draw(self):
         arcade.start_render()
-        if self.game_status == "is playing":
+        if not self.game_over:
             arcade.draw_texture_rectangle(self.width // 2, self.height // 2, self.width,
                                           self.height, self.game_background)
             self.snake.draw()
@@ -111,9 +116,10 @@ class Game(arcade.Window):
             self.pear.draw()
             self.poop.draw()
 
-            arcade.draw_text(f"SCORE : {self.snake.score}", 50, 20 )
+            arcade.draw_text(f"SCORE : {self.snake.score}", self.width - 300,
+                             self.height - 20, arcade.color.YELLOW_ROSE, font_size= 20)
 
-        elif self.game_status == "game over":
+        elif self.game_over:
             arcade.draw_texture_rectangle(self.width // 2, self.height // 2, self.width,
                                           self.height, self.game_over_background)
         arcade.finish_render()
@@ -138,16 +144,16 @@ class Game(arcade.Window):
 
         for part in self.snake.body:
             if self.snake.center_x == part["x"] and self.snake.center_y == part["y"]:
-                self.game_status = "game over"
+                self.game_over = True
                 self.on_draw()
 
         if self.snake.center_x == 10 or self.snake.center_x == self.width - 10 or self.snake.center_y == 10 or\
                 self.snake.center_y == self.height - 10:
-            self.game_status = "game over"
+            self.game_over = True
             self.on_draw()
 
         if self.snake.score == -1:
-            self.game_status = "game over"
+            self.game_over = True
             self.on_draw()
 
     def on_key_release(self, symbol: int, modifiers: int):
