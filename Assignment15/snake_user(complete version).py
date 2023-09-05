@@ -117,7 +117,7 @@ class Game(arcade.Window):
             self.poop.draw()
 
             arcade.draw_text(f"SCORE : {self.snake.score}", self.width - 300,
-                             self.height - 20, arcade.color.YELLOW_ROSE, font_size= 20)
+                             self.height - 30, arcade.color.YELLOW_ROSE, font_size= 20)
 
         elif self.game_over:
             arcade.draw_texture_rectangle(self.width // 2, self.height // 2, self.width,
