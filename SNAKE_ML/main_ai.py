@@ -5,7 +5,7 @@ from apple import Apple
 
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 400
-SCREEN_TITLE = "Super Snake V1"
+SCREEN_TITLE = "Super Snake simple ai version"
 
 
 # Class Game
@@ -13,8 +13,8 @@ class Game(arcade.Window):
     def __init__(self):
         super().__init__(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE, resizable=True)
         arcade.set_background_color(arcade.color.KHAKI)
-        self.game_background = arcade.load_texture("game images/game_background.png")
-        self.game_over_background = arcade.load_texture("game images/game_over_background1.png")
+        self.game_background = arcade.load_texture("assets/game_background.png")
+        self.game_over_background = arcade.load_texture("assets/game_over_background1.png")
         self.game_over = False
         self.apple = Apple(SCREEN_WIDTH, SCREEN_HEIGHT)
         self.snake = Snake(SCREEN_WIDTH, SCREEN_HEIGHT)
@@ -37,8 +37,6 @@ class Game(arcade.Window):
             arcade.exit()
         arcade.finish_render()
 
-
-
     def game_over_func(self):
         for part in self.snake.body:
             if self.snake.center_x == part["center_x"] and self.snake.center_y == part["center_y"]:
@@ -56,10 +54,10 @@ class Game(arcade.Window):
             self.game_over = True
             self.on_draw()
 
-
     def on_update(self, delta_time: float):
 
-        self.snake.on_update()
+        self.snake.on_update(delta_time)
+        self.apple.on_update()
 
         if self.snake.center_y > self.apple.center_y:
             self.snake.change_x = 0
@@ -77,13 +75,11 @@ class Game(arcade.Window):
             self.snake.change_x = 1
             self.snake.change_y = 0
 
-
         if arcade.check_for_collision(self.snake, self.apple):
             self.snake.eat(self.apple)
             self.apple = Apple(SCREEN_WIDTH, SCREEN_HEIGHT)
 
         #self.game_over_func()
-
 
     def on_key_release(self, symbol: int, modifiers: int):
         pass

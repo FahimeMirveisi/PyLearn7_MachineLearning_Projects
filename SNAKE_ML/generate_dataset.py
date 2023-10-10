@@ -1,6 +1,5 @@
 
 import arcade
-import pandas
 import pandas as pd
 
 from snake import Snake
@@ -9,7 +8,7 @@ from apple import Apple
 
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 400
-SCREEN_TITLE = "Super Snake V1"
+SCREEN_TITLE = "Super Snake generate dataset"
 
 
 # Class Game
@@ -17,8 +16,8 @@ class Game(arcade.Window):
     def __init__(self):
         super().__init__(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE, resizable=True)
         arcade.set_background_color(arcade.color.KHAKI)
-        self.game_background = arcade.load_texture("game images/game_background.png")
-        self.game_over_background = arcade.load_texture("game images/game_over_background1.png")
+        self.game_background = arcade.load_texture("assets/game_background.png")
+        self.game_over_background = arcade.load_texture("assets/game_over_background1.png")
         self.game_over = False
         self.dataset = []
         self.apple = Apple(SCREEN_WIDTH, SCREEN_HEIGHT)
@@ -42,8 +41,6 @@ class Game(arcade.Window):
             arcade.exit()
         arcade.finish_render()
 
-
-
     def game_over_func(self):
         for part in self.snake.body:
             if self.snake.center_x == part["center_x"] and self.snake.center_y == part["center_y"]:
@@ -61,27 +58,102 @@ class Game(arcade.Window):
             self.game_over = True
             self.on_draw()
 
-
     def on_update(self, delta_time: float):
 
-        self.snake.on_update()
+        data = {"wu":None,
+                "wr":None,
+                "wd":None,
+                "wl":None,
+                "au":None,
+                "ar":None,
+                "ad":None,
+                "al":None,
+                "bu":None,
+                "br":None,
+                "bd":None,
+                "bl":None,
+                "direction":None}
+
+        self.snake.on_update(delta_time)
+        self.apple.on_update()
 
         if self.snake.center_y > self.apple.center_y:
             self.snake.change_x = 0
             self.snake.change_y = -1
+            data["direction"] = 2
 
         elif self.snake.center_y < self.apple.center_y:
             self.snake.change_x = 0
             self.snake.change_y = 1
+            data["direction"] = 0
 
         elif self.snake.center_x > self.apple.center_x:
             self.snake.change_x = -1
             self.snake.change_y = 0
+            data["direction"] = 3
 
         elif self.snake.center_x < self.apple.center_x:
             self.snake.change_x = 1
             self.snake.change_y = 0
+            data["direction"] = 1
 
+        #جمع آوری دیتای فاصله مار تا سیب
+        if self.snake.center_x == self.apple.center_x and self.snake.center_y < self.apple.center_y:
+            data["au"] = 1
+            data["ar"] = 0
+            data["ad"] = 0
+            data["al"] = 0
+
+        elif self.snake.center_x == self.apple.center_x and self.snake.center_y > self.apple.center_y:
+            data["au"] = 0
+            data["ar"] = 0
+            data["ad"] = 1
+            data["al"] = 0
+
+        elif self.snake.center_x < self.apple.center_x and self.snake.center_y == self.apple.center_y:
+            data["au"] = 0
+            data["ar"] = 1
+            data["ad"] = 0
+            data["al"] = 0
+
+        elif self.snake.center_x == self.apple.center_x and self.snake.center_y > self.apple.center_y:
+            data["au"] = 0
+            data["ar"] = 0
+            data["ad"] = 0
+            data["al"] = 1
+        #جمع آوری دیتای فاصله مار تا دیوار
+        data["wu"] = SCREEN_HEIGHT - self.snake.center_y
+        data["wr"] = SCREEN_WIDTH - self.snake.center_x
+        data["wd"] = self.snake.center_y
+        data["wl"] = self.snake.center_x
+
+        # حمع آوری دیتای فاصله مار تا بدن خودش
+        for part in self.snake.body:
+            if self.snake.center_x == part['center_x'] and self.snake.center_y < part['center_y']:
+                data["bu"] = 1
+                data["br"] = 0
+                data["bd"] = 0
+                data["bl"] = 0
+
+            elif self.snake.center_x == part['center_x'] and self.snake.center_y > part['center_y']:
+                data["bu"] = 0
+                data["br"] = 0
+                data["bd"] = 1
+                data["bl"] = 0
+
+            elif self.snake.center_x < part['center_x'] and self.snake.center_y == part['center_y']:
+                data["bu"] = 0
+                data["br"] = 1
+                data["bd"] = 0
+                data["bl"] = 0
+
+            elif self.snake.center_x > part['center_x'] and self.snake.center_y == part['center_y']:
+                data["bu"] = 0
+                data["br"] = 0
+                data["bd"] = 0
+                data["bl"] = 1
+
+        self.dataset.append(data)
 
         if arcade.check_for_collision(self.snake, self.apple):
             self.snake.eat(self.apple)
@@ -89,11 +161,15 @@ class Game(arcade.Window):
 
         #self.game_over_func()
 
-
     def on_key_release(self, symbol: int, modifiers: int):
         if symbol == arcade.key.Q:
             df = pd.DataFrame(self.dataset)
-            df.to_csv('dataset.csv', index=False)
+            #df.isnull().sum().dropna()
+            df.to_csv('dataset/dataset.csv', index=False)
+            arcade.close_window()
+            exit()
+
+
 if __name__ == "__main__":
     game = Game()
     arcade.run()

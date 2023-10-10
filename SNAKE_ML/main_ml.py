@@ -1,3 +1,5 @@
+import tensorflow as tf
+import numpy as np
 import arcade
 from snake import Snake
 from apple import Apple
@@ -5,7 +7,7 @@ from apple import Apple
 
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 400
-SCREEN_TITLE = "Super Snake V1"
+SCREEN_TITLE = "Super Snake ML version"
 
 
 # Class Game
@@ -15,6 +17,7 @@ class Game(arcade.Window):
         arcade.set_background_color(arcade.color.KHAKI)
         self.game_background = arcade.load_texture("assets/game_background.png")
         self.game_over_background = arcade.load_texture("assets/game_over_background1.png")
+        self.model = tf.keras.models.load_model('weights/my_snake_model.h5')
         self.game_over = False
         self.apple = Apple(SCREEN_WIDTH, SCREEN_HEIGHT)
         self.snake = Snake(SCREEN_WIDTH, SCREEN_HEIGHT)
@@ -61,20 +64,88 @@ class Game(arcade.Window):
 
         self.snake.on_update()
 
-        if self.snake.center_y > self.apple.center_y:
-            self.snake.change_x = 0
-            self.snake.change_y = -1
+        data ={}
 
-        elif self.snake.center_y < self.apple.center_y:
+        # جمع آوری دیتای فاصله مار تا سیب
+        if self.snake.center_x == self.apple.center_x and self.snake.center_y < self.apple.center_y:
+            data["au"] = 1
+            data["ar"] = 0
+            data["ad"] = 0
+            data["al"] = 0
+
+        elif self.snake.center_x == self.apple.center_x and self.snake.center_y > self.apple.center_y:
+            data["au"] = 0
+            data["ar"] = 0
+            data["ad"] = 1
+            data["al"] = 0
+
+        elif self.snake.center_x < self.apple.center_x and self.snake.center_y == self.apple.center_y:
+            data["au"] = 0
+            data["ar"] = 1
+            data["ad"] = 0
+            data["al"] = 0
+
+        elif self.snake.center_x == self.apple.center_x and self.snake.center_y > self.apple.center_y:
+            data["au"] = 0
+            data["ar"] = 0
+            data["ad"] = 0
+            data["al"] = 1
+        # جمع آوری دیتای فاصله مار تا دیوار
+        data["wu"] = SCREEN_HEIGHT - self.snake.center_y
+        data["wr"] = SCREEN_WIDTH - self.snake.center_x
+        data["wd"] = self.snake.center_y
+        data["wl"] = self.snake.center_x
+
+        # حمع آوری دیتای فاصله مار تا بدن خودش
+        for part in self.snake.body:
+            if self.snake.center_x == part['center_x'] and self.snake.center_y < part['center_y']:
+                data["bu"] = 1
+                data["br"] = 0
+                data["bd"] = 0
+                data["bl"] = 0
+
+            elif self.snake.center_x == part['center_x'] and self.snake.center_y > part['center_y']:
+                data["bu"] = 0
+                data["br"] = 0
+                data["bd"] = 1
+                data["bl"] = 0
+
+            elif self.snake.center_x < part['center_x'] and self.snake.center_y == part['center_y']:
+                data["bu"] = 0
+                data["br"] = 1
+                data["bd"] = 0
+                data["bl"] = 0
+
+            elif self.snake.center_x > part['center_x'] and self.snake.center_y == part['center_y']:
+                data["bu"] = 0
+                data["br"] = 0
+                data["bd"] = 0
+                data["bl"] = 1
+        print(data)
+        data= list(data.items())
+        data = np.array(data)
+        print(data)
+        for d in data:
+            if d is None:
+                print("d:", d)
+                d = 0
+        print('data:', data)
+        output = self.model.predict(data)
+        direction = output.argmax()
+        if direction == 0:
             self.snake.change_x = 0
             self.snake.change_y = 1
 
-        elif self.snake.center_x > self.apple.center_x:
-            self.snake.change_x = -1
+        elif direction == 1:
+            self.snake.change_x = 1
             self.snake.change_y = 0
 
-        elif self.snake.center_x < self.apple.center_x:
-            self.snake.change_x = 1
+        elif direction == 2:
+            self.snake.change_x = 0
+            self.snake.change_y = -1
+
+        elif direction == 3:
+            self.snake.change_x = -1
             self.snake.change_y = 0
 
 
@@ -87,6 +158,7 @@ class Game(arcade.Window):
 
     def on_key_release(self, symbol: int, modifiers: int):
         pass
+
 
 if __name__ == "__main__":
     game = Game()

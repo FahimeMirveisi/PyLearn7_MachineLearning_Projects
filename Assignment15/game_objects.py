@@ -4,7 +4,7 @@ import arcade
 
 class Apple:
     def __init__(self, game):
-        super().__init__("game images/apple.png")
+        super().__init__("assets/apple.png")
         self.width = 35
         self.height = 35
         self.center_x = random.randint(10, game.width - 10)

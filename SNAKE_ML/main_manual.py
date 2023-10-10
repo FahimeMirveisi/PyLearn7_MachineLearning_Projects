@@ -13,8 +13,8 @@ class Game(arcade.Window):
     def __init__(self):
         super().__init__(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE, resizable=True)
         arcade.set_background_color(arcade.color.KHAKI)
-        self.game_background = arcade.load_texture("game images/game_background.png")
-        self.game_over_background = arcade.load_texture("game images/game_over_background1.png")
+        self.game_background = arcade.load_texture("assets/game_background.png")
+        self.game_over_background = arcade.load_texture("assets/game_over_background1.png")
         self.game_over = False
         self.apple = Apple(SCREEN_WIDTH, SCREEN_HEIGHT)
         self.snake = Snake(SCREEN_WIDTH, SCREEN_HEIGHT)
